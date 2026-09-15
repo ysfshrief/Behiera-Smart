@@ -15,9 +15,11 @@ import { RankBars } from "@/components/charts/RankBars";
 import { StatusFunnel } from "@/components/charts/StatusFunnel";
 import { BeheiraMap } from "@/components/modules/BeheiraMap";
 import { InsightCard } from "@/components/modules/InsightCard";
+import { LiveRefresh } from "@/components/modules/LiveRefresh";
+import { AIAccuracyPanel } from "@/components/modules/AIAccuracyPanel";
 import { Badge, Card, ButtonLink, DemoDataNote } from "@/components/ui/primitives";
 import { Icon } from "@/components/layout/Icon";
-import { formatDate, formatDuration, formatNumber, formatPercent, timeAgo } from "@/lib/format";
+import { formatDate, formatDistance, formatDuration, formatNumber, formatPercent, timeAgo } from "@/lib/format";
 
 export default async function AdminOverviewPage() {
   const user = await getCurrentUser();
@@ -37,6 +39,12 @@ export default async function AdminOverviewPage() {
 
   const recent72 = complaints.filter(
     (c) => Date.now() - Date.parse(c.createdAt) <= 72 * 3_600_000,
+  );
+
+  // نافذة «وصل للتو» — ما يجعل أثر بلاغ جديد مرئيًا على اللوحة فور وصوله.
+  const JUST_ARRIVED_MINUTES = 20;
+  const justArrived = complaints.filter(
+    (c) => Date.now() - Date.parse(c.createdAt) <= JUST_ARRIVED_MINUTES * 60_000,
   );
 
   const priorityCounts = (["critical", "high", "normal", "low"] as const).map((priority) => ({
@@ -73,9 +81,11 @@ export default async function AdminOverviewPage() {
               بُنيت عليه — والقرار يبقى للجهة التنفيذية.
             </p>
           </div>
-          <div className="text-end">
-            <p className="text-[11px] text-white/50">آخر تحديث</p>
-            <p className="num text-[13px] font-bold text-white">{formatDate(new Date().toISOString(), "long")}</p>
+          <div className="flex flex-col items-end gap-2.5">
+            <LiveRefresh />
+            <p className="num text-[11.5px] text-white/50">
+              {formatDate(new Date().toISOString(), "long")}
+            </p>
           </div>
         </div>
       </div>
@@ -85,13 +95,24 @@ export default async function AdminOverviewPage() {
         <StatTile
           label="إجمالي البلاغات"
           value={formatNumber(stats.total)}
+          countTo={stats.total}
           icon="megaphone"
           tone="brand"
           hint={`${formatNumber(recent72.length)} خلال آخر ٧٢ ساعة`}
+          trend={
+            justArrived.length > 0
+              ? {
+                  direction: "up",
+                  label: `+${formatNumber(justArrived.length)} وصل خلال آخر ${JUST_ARRIVED_MINUTES} دقيقة`,
+                  good: false,
+                }
+              : undefined
+          }
         />
         <StatTile
           label="بلاغات مفتوحة"
           value={formatNumber(stats.open)}
+          countTo={stats.open}
           icon="clock"
           tone="warning"
           hint={`${formatPercent(stats.total ? stats.open / stats.total : 0)} من الإجمالي`}
@@ -106,6 +127,7 @@ export default async function AdminOverviewPage() {
         <StatTile
           label="أولوية حرجة مفتوحة"
           value={formatNumber(stats.critical)}
+          countTo={stats.critical}
           icon="alert-triangle"
           tone="critical"
           hint="تتطلب متابعة فورية"
@@ -278,12 +300,20 @@ export default async function AdminOverviewPage() {
                         <Icon name={category?.icon ?? "megaphone"} size={17} />
                       </span>
                       <div className="min-w-0 flex-1">
-                        <p className="text-[13px] font-extrabold">
-                          <span className="num">{cluster.complaints.length}</span> بلاغات ·{" "}
-                          {category?.name} · {cluster.markaz}
-                        </p>
+                        <div className="flex flex-wrap items-center gap-2">
+                          <p className="text-[13px] font-extrabold">
+                            <span className="num">{cluster.complaints.length}</span> بلاغات ·{" "}
+                            {category?.name} · {cluster.markaz}
+                          </p>
+                          {Date.now() - Date.parse(cluster.lastAt) <= 20 * 60_000 && (
+                            <span className="anim-pop inline-flex items-center gap-1 rounded-full bg-[var(--danger-soft)] px-2 py-[2px] text-[10px] font-extrabold text-[var(--danger)]">
+                              <span className="anim-ring h-1.5 w-1.5 rounded-full bg-current" />
+                              انضم بلاغ للتو
+                            </span>
+                          )}
+                        </div>
                         <p className="num mt-1 text-[11.5px] text-[var(--ink-3)]">
-                          نطاق {cluster.radiusKm.toFixed(1)} كم · أول بلاغ {timeAgo(cluster.firstAt)} ·
+                          نطاق {formatDistance(cluster.radiusKm)} · أول بلاغ {timeAgo(cluster.firstAt)} ·
                           آخر بلاغ {timeAgo(cluster.lastAt)}
                         </p>
                         <p className="mt-1.5 text-[11.5px] text-[var(--ink-2)]">
@@ -306,6 +336,11 @@ export default async function AdminOverviewPage() {
             </ul>
           )}
         </Card>
+      </div>
+
+      {/* ═══ أداء المحرك ═══ */}
+      <div className="mt-4">
+        <AIAccuracyPanel complaints={complaints} />
       </div>
 
       {/* ═══ التدريب والخدمات ═══ */}

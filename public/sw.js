@@ -20,7 +20,8 @@ const DATA_CACHE = `${VERSION}-data`;
 const SHELL_ASSETS = [
   "/offline",
   "/manifest.webmanifest",
-  "/brand/icon.svg",
+  "/brand/emblem-96.png",
+  "/brand/emblem-192.png",
 ];
 
 const MAX_PAGES = 45;

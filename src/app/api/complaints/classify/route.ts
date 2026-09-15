@@ -3,6 +3,8 @@ import { categoriesRepo, complaintsRepo } from "@/lib/repositories/complaints";
 import { classifyComplaint } from "@/lib/ai/classifier";
 import { findSimilar } from "@/lib/ai/similarity";
 import { haversineKm } from "@/data/geo";
+import { tokenize } from "@/lib/ai/arabic";
+import { cleanText, clientKey, rateLimit } from "@/lib/validation";
 
 /**
  * تصنيف مساعَد + كشف تكرار — **قبل** الإرسال.
@@ -11,6 +13,14 @@ import { haversineKm } from "@/data/geo";
  * ويصححه، لا أن يُفاجأ بتصنيف بعد الإرسال.
  */
 export async function POST(request: Request) {
+  const limit = rateLimit(`classify:${clientKey(request)}`, 40, 60_000);
+  if (!limit.ok) {
+    return NextResponse.json(
+      { error: "rate_limited" },
+      { status: 429, headers: { "Retry-After": String(limit.retryAfterSeconds) } },
+    );
+  }
+
   const body = (await request.json().catch(() => null)) as {
     title?: string;
     body?: string;
@@ -18,8 +28,8 @@ export async function POST(request: Request) {
     lng?: number;
   } | null;
 
-  const title = (body?.title ?? "").trim();
-  const text = (body?.body ?? "").trim();
+  const title = cleanText(body?.title, 120);
+  const text = cleanText(body?.body, 1200);
 
   if (text.length < 10) {
     return NextResponse.json({ error: "text_too_short" }, { status: 400 });
@@ -66,9 +76,25 @@ export async function POST(request: Request) {
       }))
     : [];
 
+  // أرقام التحليل الحقيقية — تُعرض للمواطن أثناء كشف النتيجة.
+  // ليست زخرفة: كل رقم هنا ناتج عن عملية تمت فعلًا في هذا الطلب.
+  const recentPool = pool.filter(
+    (c) => Date.now() - Date.parse(c.createdAt) <= 72 * 3_600_000,
+  ).length;
+
   return NextResponse.json({
     classification,
     similar,
+    analysis: {
+      wordsAnalysed: tokenize(`${title} ${text}`).length,
+      categoriesMatched: categories.length,
+      complaintsCompared: pool.length,
+      recentPool,
+      nearbyRecentCount,
+      similarFound: similar.length,
+      windowHours: 72,
+      radiusKm: 1.5,
+    },
     categories: categories.map((c) => ({
       id: c.id, name: c.name, authority: c.authority, slaDays: c.slaDays, icon: c.icon, color: c.color,
     })),

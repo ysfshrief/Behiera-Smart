@@ -7,6 +7,7 @@ import { savedRepo } from "@/lib/repositories/misc";
 import { getCurrentUser } from "@/lib/auth/session";
 import { NEWS_CATEGORY_LABELS } from "@/data/news";
 import { CoverArt } from "@/components/brand/CoverArt";
+import { OfficialEmblem } from "@/components/brand/Logo";
 import { Badge, Card, ButtonLink, DemoDataNote } from "@/components/ui/primitives";
 import { SaveButton } from "@/components/modules/SaveButton";
 import { ShareButton } from "@/components/modules/ShareButton";
@@ -79,11 +80,14 @@ export default async function NewsArticlePage({
         </p>
 
         <div className="mt-5 flex flex-wrap items-center justify-between gap-3 border-y border-[var(--line)] py-3">
-          <div className="min-w-0">
-            <p className="text-[12.5px] font-bold text-[var(--ink)]">{item.source}</p>
-            <p className="mt-0.5 text-[11.5px] text-[var(--ink-3)]">
-              نُشر في {formatDateTime(item.publishedAt)}
-            </p>
+          <div className="flex min-w-0 items-center gap-3">
+            <OfficialEmblem size={38} />
+            <div className="min-w-0">
+              <p className="text-[12.5px] font-bold text-[var(--ink)]">{item.source}</p>
+              <p className="mt-0.5 text-[11.5px] text-[var(--ink-3)]">
+                نُشر في {formatDateTime(item.publishedAt)}
+              </p>
+            </div>
           </div>
           <div className="flex items-center gap-2">
             <SaveButton entityType="news" entityId={item.id} initialSaved={isSaved} variant="labelled" />

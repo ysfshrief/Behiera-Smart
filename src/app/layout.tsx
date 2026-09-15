@@ -3,6 +3,8 @@ import { Cairo, IBM_Plex_Sans_Arabic } from "next/font/google";
 import "./globals.css";
 import { ConnectivityProvider } from "@/components/layout/ConnectivityProvider";
 import { ServiceWorkerBridge } from "@/components/layout/ServiceWorkerBridge";
+import { ToastProvider } from "@/components/ui/Toast";
+import { getLocaleContext } from "@/lib/i18n";
 
 const plexArabic = IBM_Plex_Sans_Arabic({
   subsets: ["arabic", "latin"],
@@ -28,7 +30,13 @@ export const metadata: Metadata = {
   applicationName: "بحيرة سمارت",
   manifest: "/manifest.webmanifest",
   appleWebApp: { capable: true, title: "بحيرة سمارت", statusBarStyle: "default" },
-  icons: { icon: "/brand/icon.svg", apple: "/brand/icon.svg" },
+  icons: {
+    icon: [
+      { url: "/brand/emblem-96.png", sizes: "96x95", type: "image/png" },
+      { url: "/brand/emblem-192.png", sizes: "192x190", type: "image/png" },
+    ],
+    apple: { url: "/brand/emblem-192.png", sizes: "192x190", type: "image/png" },
+  },
   formatDetection: { telephone: false },
 };
 
@@ -51,9 +59,11 @@ const THEME_INIT = `
 }catch(e){document.documentElement.setAttribute("data-theme","light");}})();
 `;
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const { config, t } = await getLocaleContext();
+
   return (
-    <html lang="ar" dir="rtl" suppressHydrationWarning>
+    <html lang={config.code} dir={config.dir} suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: THEME_INIT }} />
       </head>
@@ -62,11 +72,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           href="#main"
           className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:start-3 focus:z-[100] focus:rounded-lg focus:bg-[var(--brand)] focus:px-4 focus:py-2 focus:text-white"
         >
-          تخطَّ إلى المحتوى
+          {t.shell.skipToContent}
         </a>
         <ConnectivityProvider>
-          <ServiceWorkerBridge />
-          {children}
+          <ToastProvider>
+            <ServiceWorkerBridge />
+            {children}
+          </ToastProvider>
         </ConnectivityProvider>
       </body>
     </html>

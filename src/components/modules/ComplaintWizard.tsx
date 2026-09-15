@@ -10,9 +10,10 @@ import { Callout, Spinner } from "@/components/ui/feedback";
 import { useConnectivity } from "@/components/layout/ConnectivityProvider";
 import { enqueue, newIdempotencyKey } from "@/lib/offline/outbox";
 import { compressImage } from "@/lib/image";
+import { AnalysisReveal, type AnalysisMetrics } from "./AnalysisReveal";
 import { MARKAZ_NAMES, markazByName } from "@/data/geo";
 import { PRIORITY_LABELS } from "@/lib/ai/classifier";
-import { cn, timeAgo } from "@/lib/format";
+import { cn, timeAgo, formatDistance } from "@/lib/format";
 import type { AIClassification, Complaint, ComplaintCategory, Priority } from "@/lib/types";
 
 const STEPS = ["الوصف", "الموقع", "المراجعة", "الإرسال"] as const;
@@ -56,6 +57,8 @@ export function ComplaintWizard({
   const [geoState, setGeoState] = useState<"idle" | "locating" | "denied" | "done">("idle");
 
   const [analysing, setAnalysing] = useState(false);
+  const [metrics, setMetrics] = useState<AnalysisMetrics | null>(null);
+  const [revealDone, setRevealDone] = useState(false);
   const [classification, setClassification] = useState<AIClassification | null>(null);
   const [similar, setSimilar] = useState<SimilarHit[]>([]);
   const [chosenCategory, setChosenCategory] = useState(presetCategory ?? "");
@@ -111,6 +114,8 @@ export function ComplaintWizard({
   /* ── التحليل ─────────────────────────────────────────────── */
   const analyse = async () => {
     setAnalysing(true);
+    setRevealDone(false);
+    setMetrics(null);
     setError(null);
     try {
       const response = await fetch("/api/complaints/classify", {
@@ -122,15 +127,19 @@ export function ComplaintWizard({
       const data = (await response.json()) as {
         classification: AIClassification;
         similar: SimilarHit[];
+        analysis: AnalysisMetrics;
       };
       setClassification(data.classification);
       setSimilar(data.similar);
+      setMetrics(data.analysis);
       if (!chosenCategory) setChosenCategory(data.classification.categoryId);
       setChosenPriority(data.classification.priority);
     } catch {
       // دون اتصال أو عند فشل الخدمة: نكمل بلا اقتراح، ويختار المواطن يدويًا.
       setClassification(null);
       setSimilar([]);
+      setMetrics(null);
+      setRevealDone(true);
       if (!chosenCategory) setChosenCategory(categories[0].id);
       setChosenPriority("normal");
     } finally {
@@ -153,8 +162,7 @@ export function ComplaintWizard({
       lat: point?.lat,
       lng: point?.lng,
       attachments: photos.map((dataUrl) => ({ dataUrl })),
-      aiClassification: classification,
-      citizenOverrodeAI: overrode,
+      // التصنيف وإشارة التعديل يُحسبان على الخادم — لا يُرسلان من هنا.
       idempotencyKey: newIdempotencyKey(),
     };
 
@@ -393,14 +401,8 @@ export function ComplaintWizard({
       {/* ═══ ٣ · المراجعة ═══ */}
       {step === 2 && (
         <div className="anim-rise space-y-5">
-          {analysing ? (
-            <Card className="p-8 text-center">
-              <Spinner size={26} className="mx-auto text-[var(--brand)]" />
-              <p className="mt-3 text-[13.5px] font-semibold">جارٍ تحليل البلاغ…</p>
-              <p className="mt-1 text-[12px] text-[var(--ink-3)]">
-                نقرأ الوصف ونقارنه ببلاغات قريبة خلال آخر ٧٢ ساعة.
-              </p>
-            </Card>
+          {analysing || !revealDone ? (
+            <AnalysisReveal metrics={metrics} onDone={() => setRevealDone(true)} />
           ) : (
             <>
               {/* تحذير التكرار */}
@@ -428,7 +430,7 @@ export function ComplaintWizard({
                             <span className="text-[12.5px] font-bold text-[var(--ink)]">{hit.title}</span>
                           </span>
                           <span className="mt-1 flex flex-wrap items-center gap-1.5 text-[11px] text-[var(--ink-3)]">
-                            <span className="num">على بُعد {hit.distanceKm} كم</span>
+                            <span className="num">على بُعد {formatDistance(hit.distanceKm)}</span>
                             <span>· {timeAgo(hit.createdAt)}</span>
                             {hit.reasons.map((reason) => (
                               <span

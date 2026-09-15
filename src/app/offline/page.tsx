@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ProductMark } from "@/components/brand/Logo";
+import { OfficialEmblem } from "@/components/brand/Logo";
 import { Icon } from "@/components/layout/Icon";
 import { OfflineLibrary } from "@/components/modules/OfflineLibrary";
 
@@ -15,7 +15,7 @@ export default function OfflinePage() {
       <div className="water-surface relative">
         <div className="heritage-grid absolute inset-0" aria-hidden="true" />
         <div className="relative mx-auto max-w-[680px] px-5 py-10 text-center sm:py-14">
-          <ProductMark size={46} tone="light" className="mx-auto" />
+          <OfficialEmblem size={58} plaque className="mx-auto" />
           <span className="mx-auto mt-6 flex h-14 w-14 items-center justify-center rounded-full bg-white/10 text-[var(--color-gold-300)]">
             <Icon name="wifi-off" size={26} />
           </span>

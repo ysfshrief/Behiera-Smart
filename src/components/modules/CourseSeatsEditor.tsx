@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/primitives";
 import { Input } from "@/components/ui/form";
 import { Spinner } from "@/components/ui/feedback";
 import { Icon } from "@/components/layout/Icon";
+import { useToast } from "@/components/ui/Toast";
 
 export function CourseSeatsEditor({
   slug,
@@ -21,6 +22,7 @@ export function CourseSeatsEditor({
   locationLabel: string;
 }) {
   const router = useRouter();
+  const { toast } = useToast();
   const [seats, setSeats] = useState(String(seatsTotal));
   const [when, setWhen] = useState(schedule);
   const [where, setWhere] = useState(locationLabel);
@@ -45,6 +47,7 @@ export function CourseSeatsEditor({
       });
       if (!response.ok) throw new Error("failed");
       setSaved(true);
+      toast("تم حفظ بيانات البرنامج");
       router.refresh();
       window.setTimeout(() => setSaved(false), 2200);
     } catch {

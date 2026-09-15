@@ -3,84 +3,123 @@ import { categoriesRepo, complaintsRepo } from "@/lib/repositories/complaints";
 import { notificationsRepo } from "@/lib/repositories/misc";
 import { getCurrentUser } from "@/lib/auth/session";
 import { classifyComplaint } from "@/lib/ai/classifier";
-import { MARKAZ_NAMES, markazByName } from "@/data/geo";
-import type { AIClassification, ComplaintAttachment, Priority } from "@/lib/types";
+import { haversineKm, MARKAZ_NAMES, markazByName } from "@/data/geo";
+import {
+  cleanText, clientKey, rateLimit, validCoordinate, validateImageDataUrl,
+  MAX_ATTACHMENTS, MAX_TOTAL_ATTACHMENT_BYTES,
+} from "@/lib/validation";
+import type { ComplaintAttachment, Priority } from "@/lib/types";
 
-const MAX_ATTACHMENTS = 3;
-const MAX_ATTACHMENT_BYTES = 1_400_000; // ~1.4MB لكل صورة بعد الضغط في المتصفح
+const MAX_TITLE = 120;
+const MAX_BODY = 1200;
+const MAX_ADDRESS = 160;
+const PRIORITIES: Priority[] = ["low", "normal", "high", "critical"];
 
 interface CreatePayload {
-  title?: string;
-  body?: string;
-  categoryId?: string;
-  priority?: Priority;
-  markaz?: string;
-  address?: string;
-  lat?: number;
-  lng?: number;
-  attachments?: { dataUrl?: string; caption?: string }[];
-  aiClassification?: AIClassification | null;
-  citizenOverrodeAI?: boolean;
-  idempotencyKey?: string;
+  title?: unknown;
+  body?: unknown;
+  categoryId?: unknown;
+  priority?: unknown;
+  markaz?: unknown;
+  address?: unknown;
+  lat?: unknown;
+  lng?: unknown;
+  attachments?: unknown;
+  idempotencyKey?: unknown;
 }
 
 export async function POST(request: Request) {
+  // حد معدل بسيط — يمنع إغراق قاعدة البيانات من عميل واحد.
+  const limit = rateLimit(`complaint:${clientKey(request)}`, 12, 60_000);
+  if (!limit.ok) {
+    return NextResponse.json(
+      { error: "rate_limited" },
+      { status: 429, headers: { "Retry-After": String(limit.retryAfterSeconds) } },
+    );
+  }
+
   const user = await getCurrentUser();
   const payload = (await request.json().catch(() => null)) as CreatePayload | null;
+  if (!payload) return bad("invalid_json");
 
-  const title = (payload?.title ?? "").trim();
-  const text = (payload?.body ?? "").trim();
-  const markaz = (payload?.markaz ?? "").trim();
+  const title = cleanText(payload.title, MAX_TITLE);
+  const body = cleanText(payload.body, MAX_BODY);
+  const markaz = cleanText(payload.markaz, 40);
+  const address = cleanText(payload.address, MAX_ADDRESS);
 
-  // تحقق على الخادم — لا نثق بتحقق الواجهة وحده.
   if (title.length < 4) return bad("title_too_short");
-  if (text.length < 15) return bad("body_too_short");
+  if (body.length < 15) return bad("body_too_short");
   if (!MARKAZ_NAMES.includes(markaz)) return bad("invalid_markaz");
 
-  const categories = categoriesRepo.all();
-  const categoryId = categories.some((c) => c.id === payload?.categoryId)
-    ? payload!.categoryId!
-    : null;
-
   const center = markazByName(markaz)!;
-  const lat = typeof payload?.lat === "number" ? payload.lat : center.lat;
-  const lng = typeof payload?.lng === "number" ? payload.lng : center.lng;
+  const point = validCoordinate(payload.lat, payload.lng) ?? { lat: center.lat, lng: center.lng };
 
-  // إن لم يرسل العميل تصنيفًا (مثلًا بلاغ من الطابور دون اتصال) نصنّف هنا.
-  const classification =
-    payload?.aiClassification ??
-    classifyComplaint({ title, body: text, categories, nearbyRecentCount: 0 });
+  // ── المرفقات: تحقق بالتوقيع الثنائي لا بالترويسة المعلنة ──────
+  const rawAttachments = Array.isArray(payload.attachments) ? payload.attachments : [];
+  const attachments: ComplaintAttachment[] = [];
+  let totalBytes = 0;
 
-  const attachments: ComplaintAttachment[] = (payload?.attachments ?? [])
-    .slice(0, MAX_ATTACHMENTS)
-    .filter((a) => typeof a.dataUrl === "string" && a.dataUrl.startsWith("data:image/"))
-    .filter((a) => a.dataUrl!.length <= MAX_ATTACHMENT_BYTES)
-    .map((a, index) => ({
-      id: `att-${index}`,
-      kind: "image" as const,
-      dataUrl: a.dataUrl!,
-      caption: a.caption ?? null,
-    }));
+  for (const entry of rawAttachments.slice(0, MAX_ATTACHMENTS)) {
+    const candidate = (entry as { dataUrl?: unknown })?.dataUrl;
+    const image = validateImageDataUrl(candidate);
+    if (!image) return bad("invalid_attachment");
+    totalBytes += image.bytes;
+    if (totalBytes > MAX_TOTAL_ATTACHMENT_BYTES) return bad("attachments_too_large");
+    attachments.push({
+      id: `att-${attachments.length}`,
+      kind: "image",
+      dataUrl: image.dataUrl,
+      caption: null,
+    });
+  }
 
-  const priority: Priority =
-    payload?.priority && ["low", "normal", "high", "critical"].includes(payload.priority)
-      ? payload.priority
-      : classification.priority;
+  // ── التصنيف يُحسب على الخادم دائمًا ───────────────────────────
+  // لا نقبل `aiClassification` من العميل إطلاقًا: ما يُخزَّن ويُبنى عليه
+  // التحليل لاحقًا يجب أن يكون ناتج المحرك نفسه، وإلا أمكن لعميل معدَّل أن
+  // يحقن إشارات وأولوية ملفّقة في بيانات المحافظة.
+  const categories = categoriesRepo.all();
+  const pool = complaintsRepo.all();
+  const nearbyRecentCount = pool.filter(
+    (c) =>
+      Date.now() - Date.parse(c.createdAt) <= 72 * 3_600_000 &&
+      haversineKm(point, c) <= 1.5,
+  ).length;
+
+  const classification = classifyComplaint({ title, body, categories, nearbyRecentCount });
+
+  // المواطن يملك الكلمة الأخيرة في التصنيف والأولوية — لكن ضمن القيم المسموحة.
+  const requestedCategory = typeof payload.categoryId === "string" ? payload.categoryId : "";
+  const categoryId = categories.some((c) => c.id === requestedCategory)
+    ? requestedCategory
+    : classification.categoryId;
+
+  const requestedPriority = payload.priority as Priority;
+  const priority: Priority = PRIORITIES.includes(requestedPriority)
+    ? requestedPriority
+    : classification.priority;
+
+  // تُشتق من المقارنة، لا تُؤخذ من العميل — إشارة تعلُّم يجب أن تكون صادقة.
+  const citizenOverrodeAI = categoryId !== classification.categoryId;
+
+  const idempotencyKey =
+    typeof payload.idempotencyKey === "string" && /^[A-Za-z0-9_-]{6,64}$/.test(payload.idempotencyKey)
+      ? payload.idempotencyKey
+      : undefined;
 
   const complaint = complaintsRepo.create({
     userId: user.id,
     title,
-    body: text,
-    categoryId: categoryId ?? classification.categoryId,
+    body,
+    categoryId,
     priority,
     markaz,
-    address: (payload?.address ?? "").trim() || markaz,
-    lat,
-    lng,
+    address: address || markaz,
+    lat: point.lat,
+    lng: point.lng,
     aiClassification: classification,
-    citizenOverrodeAI: Boolean(payload?.citizenOverrodeAI),
+    citizenOverrodeAI,
     attachments,
-    idempotencyKey: payload?.idempotencyKey,
+    idempotencyKey,
   });
 
   const category = categories.find((c) => c.id === complaint.categoryId);

@@ -59,7 +59,7 @@ export default async function ServicesPage({
       {/* لوحة مسارات الحياة — تظهر فقط دون تصفية */}
       {!isFiltered && (
         <section className="mt-7">
-          <div className="grid gap-2.5 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2 lg:grid-cols-4">
             {LIFE_EVENTS.map((event) => {
               const count = servicesRepo.list({ lifeEvent: event.id }).length;
               return (

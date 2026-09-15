@@ -18,6 +18,17 @@ const STATUS_ICONS: Record<ComplaintStatus, string> = {
  * يعرض ما تم فعلًا (بفاعله ووقته) وما لم يتم بعد، لأن غموض الحالة
  * هو أكثر ما يفقد المواطن ثقته في أي منظومة شكاوى.
  */
+/** ما ينتظره المواطن بعد الحالة الحالية — يُجيب سؤال «وبعدين؟». */
+const NEXT_STEP: Record<ComplaintStatus, string | null> = {
+  submitted: "سيراجع فريق غرفة العمليات البيانات ويتحقق من اكتمالها.",
+  reviewing: "سيُعتمد التصنيف وتُحدَّد درجة الأولوية.",
+  classified: "سيُحوَّل البلاغ إلى الجهة المختصة لاتخاذ اللازم.",
+  routed: "ستبدأ الجهة المختصة التنفيذ في الموقع.",
+  in_progress: "سيُغلق البلاغ بعد التنفيذ، وستصلك رسالة بذلك.",
+  resolved: null,
+  rejected: null,
+};
+
 export function ComplaintTimeline({
   events,
   currentStatus,
@@ -107,5 +118,34 @@ export function ComplaintTimeline({
         );
       })}
     </ol>
+  );
+}
+
+/** لافتة «الخطوة التالية» — تُعرض أسفل الخط الزمني. */
+export function NextStepNote({ currentStatus }: { currentStatus: ComplaintStatus }) {
+  const next = NEXT_STEP[currentStatus];
+
+  if (!next) {
+    return (
+      <div className="mt-5 flex items-start gap-2.5 rounded-[11px] border border-[color-mix(in_srgb,var(--ok)_26%,transparent)] bg-[var(--ok-soft)] p-3.5">
+        <Icon name="circle-check" size={17} className="mt-px shrink-0 text-[var(--ok)]" />
+        <div>
+          <p className="text-[12.5px] font-bold text-[var(--ok)]">اكتمل مسار هذا البلاغ</p>
+          <p className="pretty mt-1 text-[12px] leading-relaxed text-[var(--ink-2)]">
+            إن عادت المشكلة، افتح بلاغًا جديدًا وأشر إلى الرقم المرجعي لهذا البلاغ.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="mt-5 flex items-start gap-2.5 rounded-[11px] border border-[color-mix(in_srgb,var(--info)_26%,transparent)] bg-[var(--info-soft)] p-3.5">
+      <Icon name="arrow-left" size={17} className="mt-px shrink-0 text-[var(--info)]" />
+      <div>
+        <p className="text-[12.5px] font-bold text-[var(--info)]">الخطوة التالية</p>
+        <p className="pretty mt-1 text-[12px] leading-relaxed text-[var(--ink-2)]">{next}</p>
+      </div>
+    </div>
   );
 }

@@ -2,8 +2,17 @@ import { NextResponse } from "next/server";
 import { coursesRepo, enrollmentsRepo } from "@/lib/repositories/courses";
 import { notificationsRepo } from "@/lib/repositories/misc";
 import { getCurrentUser } from "@/lib/auth/session";
+import { clientKey, rateLimit } from "@/lib/validation";
 
 export async function POST(request: Request) {
+  const limit = rateLimit(`enroll:${clientKey(request)}`, 15, 60_000);
+  if (!limit.ok) {
+    return NextResponse.json(
+      { error: "rate_limited" },
+      { status: 429, headers: { "Retry-After": String(limit.retryAfterSeconds) } },
+    );
+  }
+
   const user = await getCurrentUser();
   const body = (await request.json().catch(() => null)) as { courseSlug?: string } | null;
 

@@ -5,14 +5,14 @@ import { complaintsRepo, categoriesRepo } from "@/lib/repositories/complaints";
 import { STATUS_LABELS } from "@/lib/complaint-status";
 import { findSimilar } from "@/lib/ai/similarity";
 import { PRIORITY_LABELS } from "@/lib/ai/classifier";
-import { ComplaintTimeline } from "@/components/modules/ComplaintTimeline";
+import { ComplaintTimeline, NextStepNote } from "@/components/modules/ComplaintTimeline";
 import { BeheiraMap } from "@/components/modules/BeheiraMap";
 import { Badge, Card, ButtonLink, Divider, DemoDataNote } from "@/components/ui/primitives";
 import { Callout } from "@/components/ui/feedback";
 import { ShareButton } from "@/components/modules/ShareButton";
 import { CacheForOffline } from "@/components/modules/CacheForOffline";
 import { Icon } from "@/components/layout/Icon";
-import { formatDateTime, timeAgo } from "@/lib/format";
+import { formatDateTime, timeAgo, formatDistance } from "@/lib/format";
 
 export async function generateMetadata({
   params,
@@ -140,6 +140,7 @@ export default async function ComplaintDetailPage({
             <h2 className="gold-rule text-[16px] font-extrabold">مسار المعالجة</h2>
             <div className="mt-5">
               <ComplaintTimeline events={complaint.events} currentStatus={complaint.status} />
+              <NextStepNote currentStatus={complaint.status} />
             </div>
           </Card>
 
@@ -243,7 +244,7 @@ export default async function ComplaintDetailPage({
                     lat: hit.complaint.lat,
                     lng: hit.complaint.lng,
                     label: hit.complaint.title,
-                    sublabel: `بلاغ مشابه · ${hit.distanceKm.toFixed(1)} كم`,
+                    sublabel: `بلاغ مشابه · ${formatDistance(hit.distanceKm)}`,
                     color: "var(--ink-3)",
                   })),
                 ]}
@@ -274,7 +275,7 @@ export default async function ComplaintDetailPage({
                         {hit.complaint.title}
                       </span>
                       <span className="num mt-1 block text-[11px] text-[var(--ink-3)]">
-                        {hit.distanceKm.toFixed(1)} كم · {timeAgo(hit.complaint.createdAt)}
+                        {formatDistance(hit.distanceKm)} · {timeAgo(hit.complaint.createdAt)}
                       </span>
                     </Link>
                   </li>

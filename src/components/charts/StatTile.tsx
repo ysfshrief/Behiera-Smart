@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { CountUp } from "@/components/ui/CountUp";
 import { Icon } from "@/components/layout/Icon";
 import { cn } from "@/lib/format";
 
@@ -9,6 +10,7 @@ import { cn } from "@/lib/format";
 export function StatTile({
   label,
   value,
+  countTo,
   unit,
   hint,
   icon,
@@ -18,6 +20,8 @@ export function StatTile({
 }: {
   label: string;
   value: string;
+  /** عند تمريره يُعرض الرقم بعدّاد متحرك ينتقل عند تغيّر القيمة. */
+  countTo?: number;
   unit?: string;
   hint?: string;
   icon?: string;
@@ -49,7 +53,7 @@ export function StatTile({
 
       <p className="mt-2.5 flex items-baseline gap-1.5">
         <span className="num text-[26px] font-extrabold leading-none" style={{ color: tone === "neutral" ? undefined : accent }}>
-          {value}
+          {countTo !== undefined ? <CountUp value={countTo} /> : value}
         </span>
         {unit && <span className="text-[12px] font-medium text-[var(--ink-3)]">{unit}</span>}
       </p>

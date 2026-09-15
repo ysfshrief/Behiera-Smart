@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Icon } from "@/components/layout/Icon";
+import { useToast } from "@/components/ui/Toast";
 import { cn } from "@/lib/format";
 
 export function ShareButton({
@@ -15,6 +16,7 @@ export function ShareButton({
   className?: string;
   variant?: "icon" | "labelled";
 }) {
+  const { toast } = useToast();
   const [copied, setCopied] = useState(false);
 
   const share = async () => {
@@ -31,6 +33,7 @@ export function ShareButton({
     try {
       await navigator.clipboard.writeText(url);
       setCopied(true);
+      toast("تم نسخ الرابط");
       window.setTimeout(() => setCopied(false), 2200);
     } catch {
       /* الحافظة قد تكون محظورة في سياق غير آمن. */

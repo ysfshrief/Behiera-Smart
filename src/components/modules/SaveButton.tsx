@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { Icon } from "@/components/layout/Icon";
+import { useToast } from "@/components/ui/Toast";
 import { cn } from "@/lib/format";
 
 /**
@@ -22,6 +23,7 @@ export function SaveButton({
   variant?: "icon" | "labelled";
   className?: string;
 }) {
+  const { toast } = useToast();
   const [saved, setSaved] = useState(initialSaved);
   const [pending, startTransition] = useTransition();
 
@@ -38,8 +40,10 @@ export function SaveButton({
         if (!response.ok) throw new Error("failed");
         const data = (await response.json()) as { saved: boolean };
         setSaved(data.saved);
+        toast(data.saved ? "تمت الإضافة إلى المحفوظات — متاحة دون اتصال" : "أُزيل من المحفوظات");
       } catch {
         setSaved(!next);
+        toast("تعذّر الحفظ. تحقّق من الاتصال.", "danger");
       }
     });
   };

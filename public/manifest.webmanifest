@@ -12,8 +12,9 @@
   "theme_color": "#0C2942",
   "categories": ["government", "education", "utilities"],
   "icons": [
-    { "src": "/brand/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
-    { "src": "/brand/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "maskable" }
+    { "src": "/brand/emblem-96.png", "sizes": "96x95", "type": "image/png", "purpose": "any" },
+    { "src": "/brand/emblem-192.png", "sizes": "192x190", "type": "image/png", "purpose": "any" },
+    { "src": "/brand/beheira-coat-of-arms.png", "sizes": "452x447", "type": "image/png", "purpose": "any" }
   ],
   "shortcuts": [
     { "name": "بلاغ جديد", "url": "/complaints/new" },

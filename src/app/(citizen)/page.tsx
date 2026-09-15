@@ -2,6 +2,9 @@ import Link from "next/link";
 import { newsRepo, servicesRepo } from "@/lib/repositories";
 import { coursesRepo } from "@/lib/repositories/courses";
 import { complaintsRepo, categoriesRepo } from "@/lib/repositories/complaints";
+import { clusterComplaints } from "@/lib/ai/similarity";
+import { generateInsights } from "@/lib/ai/insights";
+import { enrollmentsRepo } from "@/lib/repositories/courses";
 import { STATUS_LABELS } from "@/lib/complaint-status";
 import { getCurrentUser } from "@/lib/auth/session";
 import { LIFE_EVENTS } from "@/data/services";
@@ -9,8 +12,9 @@ import { HeroAsk } from "@/components/modules/HeroAsk";
 import { NewsCard } from "@/components/modules/NewsCard";
 import { ServiceCard } from "@/components/modules/ServiceCard";
 import { CourseCard } from "@/components/modules/CourseCard";
+import { EcosystemLoop } from "@/components/modules/EcosystemLoop";
 import { Icon } from "@/components/layout/Icon";
-import { LogoLockup } from "@/components/brand/Logo";
+import { BrandLockup } from "@/components/brand/Logo";
 import { Badge, ButtonLink, Card, DemoDataNote, SectionHeader } from "@/components/ui/primitives";
 import { formatDuration, formatNumber, timeAgo } from "@/lib/format";
 
@@ -23,6 +27,23 @@ export default async function HomePage() {
   const myComplaints = complaintsRepo.list({ userId: user.id, limit: 2 });
   const stats = complaintsRepo.stats();
   const categories = categoriesRepo.all();
+
+  // أرقام حلقة المنصة — تُحسب من نفس البيانات التي تعمل عليها اللوحة.
+  const allComplaints = complaintsRepo.all();
+  const loopStats = {
+    complaints: stats.total,
+    categories: categories.length,
+    clusters: clusterComplaints(allComplaints, { radiusKm: 1.5, windowHours: 72, minSize: 3 }).length,
+    insights: generateInsights({
+      complaints: allComplaints,
+      categories,
+      courses: coursesRepo.all(),
+      enrollments: enrollmentsRepo.all(),
+      services: servicesRepo.all(),
+    }).length,
+    services: servicesRepo.all().length,
+  };
+
   const categoryName = (id: string) => categories.find((c) => c.id === id)?.name ?? id;
 
   return (
@@ -33,7 +54,7 @@ export default async function HomePage() {
           <div className="heritage-grid absolute inset-0" aria-hidden="true" />
           <div className="relative px-5 pb-8 pt-8 sm:px-8 sm:pb-11 sm:pt-11 lg:px-12 lg:pb-14 lg:pt-14">
             <div className="lg:hidden">
-              <LogoLockup tone="light" size={40} showTagline={false} />
+              <BrandLockup tone="light" size={38} showSubtitle={false} priority />
             </div>
 
             <div className="mt-6 max-w-[640px] lg:mt-0">
@@ -81,7 +102,7 @@ export default async function HomePage() {
             </ButtonLink>
           }
         />
-        <div className="stagger mt-5 grid grid-cols-2 gap-2.5 sm:grid-cols-4 lg:grid-cols-4">
+        <div className="stagger mt-5 grid grid-cols-2 gap-2.5 lg:grid-cols-4">
           {LIFE_EVENTS.map((event) => (
             <Link
               key={event.id}
@@ -97,6 +118,23 @@ export default async function HomePage() {
               </span>
             </Link>
           ))}
+        </div>
+      </section>
+
+      {/* ═══ كيف تعمل المنصة ═══ */}
+      <section className="mt-10 sm:mt-14">
+        <SectionHeader
+          title="كيف تعمل المنصة"
+          description="بلاغ واحد من مواطن يمر بخمس خطوات حتى يصبح قرارًا. الأرقام أدناه محسوبة الآن من بيانات المنصة."
+          action={
+            <ButtonLink href="/demo" variant="secondary" size="sm">
+              <Icon name="eye" size={15} />
+              وضع العرض
+            </ButtonLink>
+          }
+        />
+        <div className="mt-5">
+          <EcosystemLoop stats={loopStats} />
         </div>
       </section>
 

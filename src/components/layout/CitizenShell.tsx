@@ -8,9 +8,10 @@ import { cn } from "@/lib/format";
 import { Icon } from "./Icon";
 import { ThemeToggle } from "./ThemeToggle";
 import { OfflineBanner, ConnectivityDot } from "./OfflineBanner";
-import { LogoLockup, ProductMark } from "@/components/brand/Logo";
+import { BrandLockup, OfficialEmblem } from "@/components/brand/Logo";
 import { Avatar } from "@/components/ui/primitives";
 import type { User } from "@/lib/types";
+import { fill, type Dictionary } from "@/lib/i18n/dictionary";
 
 /**
  * هيكل تطبيق المواطن.
@@ -22,10 +23,12 @@ import type { User } from "@/lib/types";
 export function CitizenShell({
   user,
   unreadCount,
+  t,
   children,
 }: {
   user: User;
   unreadCount: number;
+  t: Dictionary;
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
@@ -39,12 +42,12 @@ export function CitizenShell({
       {/* ───── الشريط الجانبي — ديسكتوب فقط ───── */}
       <aside
         className="fixed inset-y-0 end-0 z-40 hidden w-[250px] flex-col border-s border-[var(--line)] bg-[var(--surface)] lg:flex"
-        aria-label="التنقل الرئيسي"
+        aria-label={t.shell.mainNavigation}
       >
         <div className="frieze" />
         <div className="px-5 pb-5 pt-5">
           <Link href="/" className="inline-flex rounded-lg" aria-label="بحيرة سمارت — الرئيسية">
-            <LogoLockup size={38} />
+            <BrandLockup size={38} priority />
           </Link>
         </div>
 
@@ -67,7 +70,7 @@ export function CitizenShell({
                   <span className="absolute inset-y-2 -end-3 w-[3px] rounded-full bg-[var(--accent)]" />
                 )}
                 <Icon name={item.icon} size={18} />
-                {item.label}
+                {t.nav[item.key]}
               </Link>
             );
           })}
@@ -79,14 +82,14 @@ export function CitizenShell({
             className="flex items-center gap-3 rounded-[10px] bg-[var(--brand)] px-3 py-2.5 text-[13.5px] font-bold text-[var(--brand-ink)] transition-[filter] hover:brightness-110"
           >
             <Icon name="sparkles" size={18} />
-            المساعد الذكي
+            {t.nav.assistant}
           </Link>
           <Link
             href="/admin"
             className="flex items-center gap-3 rounded-[10px] px-3 py-2 text-[12.5px] font-semibold text-[var(--ink-3)] transition-colors hover:bg-[var(--surface-sunk)] hover:text-[var(--ink)]"
           >
             <Icon name="layout-dashboard" size={17} />
-            لوحة المحافظة
+            {t.nav.adminDashboard}
           </Link>
           <div className="flex items-center justify-between px-1">
             <ConnectivityDot />
@@ -101,10 +104,10 @@ export function CitizenShell({
         <header className="glass sticky top-0 z-30 border-b border-[var(--line)] lg:hidden">
           <div className="flex h-[58px] items-center gap-3 px-4">
             <Link href="/" aria-label="بحيرة سمارت — الرئيسية">
-              <LogoLockup size={32} showTagline={false} />
+              <BrandLockup size={30} showSubtitle={false} priority />
             </Link>
             <div className="flex-1" />
-            <NotificationBell count={unreadCount} />
+            <NotificationBell count={unreadCount} t={t} />
             <ThemeToggle />
           </div>
           <div className="frieze" />
@@ -113,9 +116,9 @@ export function CitizenShell({
         {/* ترويسة الديسكتوب */}
         <header className="glass sticky top-0 z-30 hidden border-b border-[var(--line)] lg:block">
           <div className="mx-auto flex h-[60px] max-w-[1180px] items-center gap-4 px-8">
-            <GlobalSearch />
+            <GlobalSearch t={t} />
             <div className="flex-1" />
-            <NotificationBell count={unreadCount} />
+            <NotificationBell count={unreadCount} t={t} />
             <div className="flex items-center gap-2.5 rounded-full border border-[var(--line)] bg-[var(--surface)] py-1 pe-3 ps-1">
               <Avatar initials={user.name.slice(0, 1)} size={28} />
               <span className="text-[12.5px] font-semibold">{user.name}</span>
@@ -129,17 +132,26 @@ export function CitizenShell({
           {children}
         </main>
 
-        <footer className="hidden border-t border-[var(--line)] px-8 py-6 lg:block">
-          <div className="mx-auto flex max-w-[1180px] items-center justify-between gap-4">
-            <p className="text-[12px] text-[var(--ink-3)]">
-              بحيرة سمارت — نموذج أولي مقدَّم لمبادرة «البحيرة تبتكر». بيانات العرض توضيحية.
+        <footer className="hidden border-t border-[var(--line)] lg:block">
+          <div className="frieze opacity-35" />
+          <div className="mx-auto flex max-w-[1180px] items-center justify-between gap-6 px-8 py-7">
+            <div className="flex items-center gap-3.5">
+              <OfficialEmblem size={44} />
+              <div>
+                <p className="text-[13px] font-extrabold">{t.shell.governorate}</p>
+                <p className="mt-0.5 text-[11.5px] text-[var(--ink-3)]">
+                  بحيرة سمارت — بوابة رقمية واحدة
+                </p>
+              </div>
+            </div>
+            <p className="max-w-[46ch] text-[11.5px] leading-relaxed text-[var(--ink-3)]">
+              نموذج أولي مقدَّم لمبادرة «البحيرة تبتكر». بيانات العرض توضيحية وغير مرتبطة
+              بأنظمة حكومية تشغيلية.
             </p>
-            <Link
-              href="/about"
-              className="text-[12px] font-semibold text-[var(--brand)] hover:underline"
-            >
-              عن المشروع
-            </Link>
+            <div className="flex shrink-0 gap-4 text-[12px] font-semibold">
+              <Link href="/about" className="text-[var(--brand)] hover:underline">{t.shell.about}</Link>
+              <Link href="/demo" className="text-[var(--brand)] hover:underline">{t.nav.demo}</Link>
+            </div>
           </div>
         </footer>
       </div>
@@ -155,13 +167,13 @@ export function CitizenShell({
         )}
       >
         <Icon name="sparkles" size={18} />
-        المساعد
+        {t.nav.assistant}
       </Link>
 
       {/* ───── الشريط السفلي — موبايل ───── */}
       <nav
         className="glass safe-b fixed inset-x-0 bottom-0 z-40 border-t border-[var(--line)] lg:hidden"
-        aria-label="التنقل السريع"
+        aria-label={t.shell.quickNavigation}
       >
         <ul className="flex h-[var(--tabbar-h)] items-stretch">
           {primary.map((item) => {
@@ -180,7 +192,7 @@ export function CitizenShell({
                     <span className="absolute top-0 h-[2.5px] w-8 rounded-full bg-[var(--accent)]" />
                   )}
                   <Icon name={item.icon} size={20} />
-                  <span className="text-[10.5px] font-semibold">{item.label}</span>
+                  <span className="text-[10.5px] font-semibold">{t.nav[item.key]}</span>
                 </Link>
               </li>
             );
@@ -191,11 +203,11 @@ export function CitizenShell({
   );
 }
 
-function NotificationBell({ count }: { count: number }) {
+function NotificationBell({ count, t }: { count: number; t: Dictionary }) {
   return (
     <Link
       href="/notifications"
-      aria-label={count > 0 ? `الإشعارات — ${count} غير مقروء` : "الإشعارات"}
+      aria-label={count > 0 ? fill(t.shell.unreadNotifications, { count }) : t.shell.notifications}
       className="relative inline-flex h-9 w-9 items-center justify-center rounded-[10px] text-[var(--ink-2)] transition-colors hover:bg-[var(--surface-sunk)] hover:text-[var(--ink)]"
     >
       <Icon name="megaphone" size={18} />
@@ -208,9 +220,9 @@ function NotificationBell({ count }: { count: number }) {
   );
 }
 
-function GlobalSearch() {
+function GlobalSearch({ t }: { t: Dictionary }) {
   const [value, setValue] = useState("");
-  const [placeholder, setPlaceholder] = useState("اسأل أو ابحث…");
+  const [placeholder, setPlaceholder] = useState(t.shell.searchPlaceholder);
 
   // أمثلة متبدلة — تُعلّم المواطن أنه يستطيع الكتابة بلغته لا بلغة الحكومة.
   useEffect(() => {
@@ -243,7 +255,7 @@ function GlobalSearch() {
           value={value}
           onChange={(event) => setValue(event.target.value)}
           placeholder={placeholder}
-          aria-label="اسأل المساعد الذكي أو ابحث"
+          aria-label={t.shell.searchLabel}
           className="h-10 w-full rounded-full border border-[var(--line-strong)] bg-[var(--surface)] ps-11 pe-4 text-[13.5px] transition-[border-color,box-shadow] placeholder:text-[var(--ink-3)] focus:border-[var(--brand)] focus:outline-none focus:ring-[3px] focus:ring-[color-mix(in_srgb,var(--brand)_14%,transparent)]"
         />
       </div>

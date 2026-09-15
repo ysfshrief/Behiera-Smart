@@ -11,9 +11,9 @@ export function NewsCard({ item, featured }: { item: NewsItem; featured?: boolea
     return (
       <Link
         href={`/news/${item.slug}`}
-        className="card card-hover group block overflow-hidden"
+        className="card card-hover group flex h-full flex-col overflow-hidden"
       >
-        <div className="relative aspect-[16/7] w-full overflow-hidden sm:aspect-[21/8]">
+        <div className="relative aspect-[16/7] w-full flex-1 overflow-hidden sm:aspect-auto sm:min-h-[300px]">
           <CoverArt seed={item.slug} tone={item.category} src={item.coverImage} />
           <div className="absolute inset-0 bg-gradient-to-t from-[rgba(4,14,24,.82)] via-[rgba(4,14,24,.25)] to-transparent" />
           <div className="absolute inset-x-0 bottom-0 p-4 sm:p-6">

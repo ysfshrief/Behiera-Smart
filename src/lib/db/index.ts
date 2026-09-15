@@ -79,6 +79,39 @@ export function getDb(): DatabaseSync {
   return g.__beheiraDb;
 }
 
+/**
+ * إعادة البيانات التجريبية إلى حالتها الأولى.
+ *
+ * وجودها ضرورة عملية لا رفاهية: العرض على الحكّام يُعاد أكثر من مرة، وكل
+ * إعادة يجب أن تبدأ من نفس النقطة تمامًا — وإلا اختلفت الأرقام بين عرض وآخر
+ * وفقد المعروض مصداقيته. البذرة ثابتة، فالنتيجة قابلة للتكرار حرفيًا.
+ */
+export function resetDemoData(): { complaints: number; resetAt: string } {
+  const db = getDb();
+  seedDatabase(db);
+  db.prepare(
+    "INSERT INTO meta (key, value) VALUES ('seed_version', ?) " +
+      "ON CONFLICT(key) DO UPDATE SET value = excluded.value",
+  ).run(SEED_VERSION);
+
+  const resetAt = new Date().toISOString();
+  db.prepare(
+    "INSERT INTO meta (key, value) VALUES ('demo_reset_at', ?) " +
+      "ON CONFLICT(key) DO UPDATE SET value = excluded.value",
+  ).run(resetAt);
+
+  const row = db.prepare("SELECT COUNT(*) AS total FROM complaints").get() as { total?: number };
+  return { complaints: Number(row.total ?? 0), resetAt };
+}
+
+/** وقت آخر إعادة ضبط — يُعرض في شريط وضع العرض. */
+export function lastDemoReset(): string | null {
+  const row = getDb()
+    .prepare("SELECT value FROM meta WHERE key = 'demo_reset_at'")
+    .get() as { value?: string } | undefined;
+  return row?.value ?? null;
+}
+
 /** معاملة — كل كتابة متعددة الجداول تمر من هنا. */
 export function transact<T>(fn: (db: DatabaseSync) => T): T {
   const db = getDb();

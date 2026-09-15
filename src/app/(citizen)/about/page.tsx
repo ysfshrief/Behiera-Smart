@@ -3,7 +3,7 @@ import Link from "next/link";
 import { Card, SectionHeader, Badge, ButtonLink } from "@/components/ui/primitives";
 import { Callout } from "@/components/ui/feedback";
 import { Icon } from "@/components/layout/Icon";
-import { LogoLockup } from "@/components/brand/Logo";
+import { BrandLockup, OfficialEmblem } from "@/components/brand/Logo";
 
 export const metadata: Metadata = {
   title: "عن المشروع",
@@ -58,7 +58,7 @@ export default function AboutPage() {
       <Card className="water-surface relative overflow-hidden border-transparent p-6 sm:p-9">
         <div className="heritage-grid absolute inset-0" aria-hidden="true" />
         <div className="relative">
-          <LogoLockup tone="light" size={42} showTagline={false} />
+          <BrandLockup tone="light" size={44} />
           <h1 className="balance mt-6 text-[25px] font-extrabold leading-tight text-white sm:text-[32px]">
             بوابة رقمية واحدة.
             <br />
@@ -153,21 +153,49 @@ export default function AboutPage() {
       </section>
 
       <section className="mt-9">
-        <SectionHeader title="الشعار الرسمي للمحافظة" />
-        <Card className="mt-4 p-5">
-          <p className="pretty text-[13px] leading-relaxed text-[var(--ink-2)]">
-            العلامة المستخدمة في هذا النموذج هي <span className="font-bold">علامة المنتج</span> التي
-            صمّمناها لبحيرة سمارت — قرص الشمس بين مرتفعين (علامة الأفق في الكتابة المصرية القديمة)
-            فوق خطوط ماء تشير إلى الدلتا والبحيرة. وهي ليست الشعار الرسمي للمحافظة، ولم نُقدّم أي
-            رسم على أنه كذلك.
-          </p>
-          <p className="pretty mt-3 text-[13px] leading-relaxed text-[var(--ink-2)]">
-            لاستخدام الشعار الرسمي: ضع ملف الشعار في{" "}
-            <code className="ltr rounded bg-[var(--surface-sunk)] px-1.5 py-0.5 text-[12px]">
-              public/brand/beheira-logo.svg
-            </code>{" "}
-            ويُعرض تلقائيًا بجوار علامة المنتج دون تلوين أو تشويه، احترامًا لدليل الهوية الرسمي.
-          </p>
+        <SectionHeader
+          title="الهوية الرسمية"
+          description="الشعار المستخدم في المنصة هو شعار محافظة البحيرة الرسمي."
+        />
+        <Card className="mt-4 p-5 sm:p-6">
+          <div className="flex flex-col gap-5 sm:flex-row sm:items-start">
+            <div className="flex shrink-0 flex-col items-center gap-3">
+              <OfficialEmblem size={112} />
+              <span className="rounded-full bg-[var(--surface-sunk)] px-2.5 py-1 text-[10.5px] font-semibold text-[var(--ink-3)]">
+                الملف الرسمي كما ورد
+              </span>
+            </div>
+
+            <div className="min-w-0 flex-1">
+              <p className="pretty text-[13px] leading-relaxed text-[var(--ink-2)]">
+                يُستخدم شعار المحافظة كما ورد في ملفه الأصلي: بلا إعادة رسم، وبلا إعادة تلوين،
+                وبلا قصّ أو تشويه، مع الحفاظ على نسبة أبعاده في كل مقاس. وعلى الأسطح الداكنة
+                يوضع على لوحة فاتحة رقيقة بدل تفتيح الشعار نفسه — وهو الأسلوب المعتاد في
+                التعامل مع الشعارات الرسمية.
+              </p>
+
+              <ul className="mt-4 grid gap-2 sm:grid-cols-2">
+                {[
+                  "الترويسة والشريط الجانبي",
+                  "لوحة المحافظة",
+                  "تذييل الصفحات",
+                  "أيقونة التطبيق على الهاتف",
+                  "ختم «مصدر رسمي» على الأخبار",
+                  "شاشة العمل دون اتصال",
+                ].map((place) => (
+                  <li key={place} className="flex items-center gap-2 text-[12.5px] text-[var(--ink-2)]">
+                    <Icon name="check" size={14} className="shrink-0 text-[var(--ok)]" />
+                    {place}
+                  </li>
+                ))}
+              </ul>
+
+              <p className="pretty mt-4 rounded-[10px] bg-[var(--surface-sunk)] p-3 text-[12px] leading-relaxed text-[var(--ink-3)]">
+                وجود الشعار يدل على الجهة صاحبة الخدمة، ولا يعني أن هذا النموذج الأولي نظام
+                حكومي معتمد قيد التشغيل. المنصة مشروع مقدَّم لمبادرة «البحيرة تبتكر».
+              </p>
+            </div>
+          </div>
         </Card>
       </section>
 

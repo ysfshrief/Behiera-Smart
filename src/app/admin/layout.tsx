@@ -5,7 +5,7 @@ import { getCurrentUser } from "@/lib/auth/session";
 import { usersRepo } from "@/lib/repositories/misc";
 import { isStaff } from "@/lib/auth/rbac";
 import { RoleSwitcher } from "@/components/modules/RoleSwitcher";
-import { ProductMark } from "@/components/brand/Logo";
+import { OfficialEmblem } from "@/components/brand/Logo";
 import { Icon } from "@/components/layout/Icon";
 
 export const metadata: Metadata = {
@@ -23,7 +23,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
       <div className="water-surface flex min-h-dvh items-center justify-center p-5">
         <div className="heritage-grid absolute inset-0" aria-hidden="true" />
         <div className="relative w-full max-w-[420px] rounded-[var(--radius-card)] border border-white/12 bg-white/[0.06] p-7 text-center backdrop-blur-md">
-          <ProductMark size={44} tone="light" className="mx-auto" />
+          <OfficialEmblem size={56} plaque className="mx-auto" />
           <h1 className="mt-5 text-[19px] font-extrabold text-white">لوحة المحافظة</h1>
           <p className="pretty mx-auto mt-2.5 max-w-[38ch] text-[13px] leading-relaxed text-white/65">
             هذه المنطقة مخصّصة للعاملين بالمحافظة. حسابك الحالي مسجّل كمواطن ولا يملك صلاحية الدخول.

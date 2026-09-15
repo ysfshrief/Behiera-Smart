@@ -8,7 +8,7 @@ import { can, ROLE_LABELS, type Resource } from "@/lib/auth/rbac";
 import { cn } from "@/lib/format";
 import { Icon } from "./Icon";
 import { ThemeToggle } from "./ThemeToggle";
-import { ProductMark } from "@/components/brand/Logo";
+import { OfficialEmblem } from "@/components/brand/Logo";
 import { Avatar } from "@/components/ui/primitives";
 import { RoleSwitcher } from "@/components/modules/RoleSwitcher";
 import type { User } from "@/lib/types";
@@ -36,7 +36,7 @@ export function AdminShell({
         <div className="frieze" />
         <div className="px-5 pb-4 pt-5">
           <Link href="/admin" className="flex items-center gap-2.5" aria-label="لوحة المحافظة">
-            <ProductMark size={34} tone="light" />
+            <OfficialEmblem size={32} plaque />
             <span className="flex flex-col leading-none">
               <span className="font-[family-name:var(--font-display)] text-[14.5px] font-extrabold text-white">
                 لوحة المحافظة

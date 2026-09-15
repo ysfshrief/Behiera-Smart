@@ -67,6 +67,21 @@ export function formatPercent(fraction: number): string {
   return `${Math.round(fraction * 100)}٪`;
 }
 
+/**
+ * المسافة — بالمتر تحت الكيلومتر، وبالكيلومتر فوقه.
+ * «١٢٠ متر» يفهمها المواطن فورًا، أما «٠٫١٢ كم» فتحتاج منه حسابًا ذهنيًا.
+ * تُقرَّب المسافات القصيرة لأقرب ١٠ أمتار لأن دقة تحديد الموقع في الهواتف
+ * لا تبرر إظهار رقم أدق من ذلك.
+ */
+export function formatDistance(km: number): string {
+  if (!Number.isFinite(km) || km < 0) return "";
+  if (km < 1) {
+    const metres = Math.max(10, Math.round((km * 1000) / 10) * 10);
+    return `${formatNumber(metres)} متر`;
+  }
+  return `${formatNumber(Math.round(km * 10) / 10)} كم`;
+}
+
 export function formatDuration(hours: number): string {
   if (hours < 1) return `${Math.round(hours * 60)} دقيقة`;
   if (hours < 24) return `${formatNumber(Math.round(hours * 10) / 10)} ساعة`;

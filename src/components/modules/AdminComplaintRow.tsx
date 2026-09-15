@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/primitives";
 import { Select } from "@/components/ui/form";
 import { Spinner } from "@/components/ui/feedback";
 import { Icon } from "@/components/layout/Icon";
+import { useToast } from "@/components/ui/Toast";
 import { timeAgo, cn } from "@/lib/format";
 import type { Complaint, ComplaintCategory, ComplaintStatus } from "@/lib/types";
 
@@ -24,6 +25,7 @@ export function AdminComplaintRow({
   isOverdue: boolean;
 }) {
   const router = useRouter();
+  const { toast } = useToast();
   const [status, setStatus] = useState<ComplaintStatus>(complaint.status);
   const [saving, setSaving] = useState(false);
   const [expanded, setExpanded] = useState(false);
@@ -40,9 +42,11 @@ export function AdminComplaintRow({
         body: JSON.stringify({ status: next }),
       });
       if (!response.ok) throw new Error("failed");
+      toast(`${complaint.refCode} → ${STATUS_LABELS[next]} · أُخطر المواطن`);
       router.refresh();
     } catch {
       setStatus(previous);
+      toast("تعذّر تغيير الحالة — قد لا يملك دورك الصلاحية.", "danger");
     } finally {
       setSaving(false);
     }
@@ -66,6 +70,9 @@ export function AdminComplaintRow({
             <span className="code text-[11.5px] font-extrabold text-[var(--ink-3)]">
               {complaint.refCode}
             </span>
+            {Date.now() - Date.parse(complaint.createdAt) <= 20 * 60_000 && (
+              <Badge tone="danger" dot className="anim-pop">وصل للتو</Badge>
+            )}
             <Badge tone={STATUS_TONE[status]}>{STATUS_LABELS[status]}</Badge>
             {(complaint.priority === "critical" || complaint.priority === "high") && (
               <Badge tone={complaint.priority === "critical" ? "danger" : "warn"} dot>
