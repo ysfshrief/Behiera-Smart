@@ -1,0 +1,441 @@
+@import "tailwindcss";
+
+/* ============================================================
+   بحيرة سمارت — نظام التصميم
+   Beheira Smart — Design System
+   تراث مصري أُعيد تصميمه لحكومة رقمية.
+   ============================================================ */
+
+@theme {
+  /* ---- اللون: النيل · الذهب · الفيانس ---- */
+  --color-nile-50:  #EEF3F8;
+  --color-nile-100: #D6E2EE;
+  --color-nile-200: #A9C2D9;
+  --color-nile-300: #7BA0BF;
+  --color-nile-400: #3C6E99;
+  --color-nile-500: #1F5480;
+  --color-nile-600: #164368;
+  --color-nile-700: #123A5E;
+  --color-nile-800: #0C2942;
+  --color-nile-900: #081C2E;
+  --color-nile-950: #040E18;
+
+  --color-gold-50:  #FBF6E8;
+  --color-gold-100: #F4E8C6;
+  --color-gold-200: #E8D294;
+  --color-gold-300: #D9B85C;
+  --color-gold-400: #C79F35;
+  --color-gold-500: #B08D2E;
+  --color-gold-600: #8E6F22;
+  --color-gold-700: #6B531A;
+
+  --color-faience-50:  #E7F5F4;
+  --color-faience-100: #C2E7E5;
+  --color-faience-200: #8CD1CE;
+  --color-faience-300: #4FB4B1;
+  --color-faience-400: #1E958F;
+  --color-faience-500: #14807E;
+  --color-faience-600: #0F6664;
+  --color-faience-700: #0B4F4D;
+
+  /* ---- الخطوط ---- */
+  --font-sans: var(--font-plex-arabic), "Segoe UI", Tahoma, system-ui, sans-serif;
+  --font-display: var(--font-cairo), var(--font-plex-arabic), system-ui, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", "Cascadia Mono", Menlo, monospace;
+
+  /* ---- الحركة ---- */
+  --ease-out-soft: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --ease-in-out-soft: cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* ---- الحواف ---- */
+  --radius-card: 14px;
+  --radius-field: 10px;
+  --radius-pill: 999px;
+}
+
+/* ============================================================
+   الرموز الدلالية — نمط فاتح
+   ============================================================ */
+:root {
+  color-scheme: light;
+
+  --bg:            #F6F5F1;   /* ورق دافئ */
+  --bg-tint:       #EFEEE8;
+  --surface:       #FFFFFF;
+  --surface-2:     #FAF9F6;
+  --surface-sunk:  #F2F1EC;
+
+  --ink:           #0B1B2B;
+  --ink-2:         #3B4C5D;
+  --ink-3:         #6B7B8B;
+  --ink-inverse:   #FFFFFF;
+
+  --line:          #E3E1D9;
+  --line-strong:   #CFCCC1;
+
+  --brand:         #123A5E;
+  --brand-hover:   #0C2942;
+  --brand-soft:    #EEF3F8;
+  --brand-ink:     #FFFFFF;
+
+  --accent:        #B08D2E;
+  --accent-soft:   #FBF6E8;
+  --accent-line:   #E8D294;
+
+  --teal:          #14807E;
+  --teal-soft:     #E7F5F4;
+
+  --ok:            #14713F;
+  --ok-soft:       #E6F4EC;
+  --warn:          #9A6508;
+  --warn-soft:     #FDF3E2;
+  --danger:        #A5231C;
+  --danger-soft:   #FBEBEA;
+  --info:          #17548F;
+  --info-soft:     #EAF1FA;
+
+  --shadow-1: 0 1px 2px rgba(8, 28, 46, 0.05), 0 1px 3px rgba(8, 28, 46, 0.04);
+  --shadow-2: 0 2px 4px rgba(8, 28, 46, 0.05), 0 6px 16px -6px rgba(8, 28, 46, 0.12);
+  --shadow-3: 0 4px 8px rgba(8, 28, 46, 0.06), 0 16px 40px -12px rgba(8, 28, 46, 0.18);
+  --shadow-ring: 0 0 0 1px var(--line);
+
+  --header-h: 60px;
+  --tabbar-h: 62px;
+}
+
+/* ============================================================
+   نمط داكن — "ليل النيل"
+   ============================================================ */
+:root[data-theme="dark"] {
+  color-scheme: dark;
+
+  --bg:            #050E18;
+  --bg-tint:       #071320;
+  --surface:       #0B1B2B;
+  --surface-2:     #0E2133;
+  --surface-sunk:  #081524;
+
+  --ink:           #E9EFF5;
+  --ink-2:         #A9BCCC;
+  --ink-3:         #74889A;
+  --ink-inverse:   #07121E;
+
+  --line:          #172F45;
+  --line-strong:   #23415C;
+
+  --brand:         #2E7FC0;
+  --brand-hover:   #4A97D4;
+  --brand-soft:    #0E2740;
+  --brand-ink:     #04121F;
+
+  --accent:        #D9B85C;
+  --accent-soft:   #1E1905;
+  --accent-line:   #4A3C11;
+
+  --teal:          #4FB4B1;
+  --teal-soft:     #072826;
+
+  --ok:            #4FBE86;
+  --ok-soft:       #072316;
+  --warn:          #E0A94B;
+  --warn-soft:     #241905;
+  --danger:        #F08A83;
+  --danger-soft:   #2A0F0D;
+  --info:          #6FAEF0;
+  --info-soft:     #081C30;
+
+  --shadow-1: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-2: 0 2px 6px rgba(0, 0, 0, 0.45), 0 10px 24px -10px rgba(0, 0, 0, 0.6);
+  --shadow-3: 0 6px 14px rgba(0, 0, 0, 0.5), 0 22px 50px -16px rgba(0, 0, 0, 0.7);
+}
+
+/* جسر إلى Tailwind: يتيح bg-surface / text-ink / border-line */
+@theme inline {
+  --color-bg: var(--bg);
+  --color-bg-tint: var(--bg-tint);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-surface-sunk: var(--surface-sunk);
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-ink-3: var(--ink-3);
+  --color-ink-inverse: var(--ink-inverse);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-brand: var(--brand);
+  --color-brand-hover: var(--brand-hover);
+  --color-brand-soft: var(--brand-soft);
+  --color-brand-ink: var(--brand-ink);
+  --color-accent: var(--accent);
+  --color-accent-soft: var(--accent-soft);
+  --color-accent-line: var(--accent-line);
+  --color-teal: var(--teal);
+  --color-teal-soft: var(--teal-soft);
+  --color-ok: var(--ok);
+  --color-ok-soft: var(--ok-soft);
+  --color-warn: var(--warn);
+  --color-warn-soft: var(--warn-soft);
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
+  --color-info: var(--info);
+  --color-info-soft: var(--info-soft);
+}
+
+/* ============================================================
+   الأساس
+   ============================================================ */
+* { border-color: var(--line); }
+
+html {
+  -webkit-text-size-adjust: 100%;
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-feature-settings: "kern", "liga";
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  overscroll-behavior-y: none;
+}
+
+h1, h2, h3, h4 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  letter-spacing: -0.005em;
+  line-height: 1.32;
+}
+
+/* ── الأرقام ──────────────────────────────────────────────────
+   `.num` أرقام جدولية فقط، **بلا** قلب للاتجاه: خوارزمية الاتجاه ثنائي
+   الاتجاه (bidi) تضع الأرقام داخل النص العربي في موضعها الصحيح تلقائيًا،
+   وفرض LTR عليها يقلب عبارات مثل «٣ مستندات» فتُقرأ خطأ.
+   `.code` وحدها تفرض LTR — للأرقام المرجعية والهواتف والإحداثيات، حيث
+   يتعدد المقطع اللاتيني وتفصله رموز فتُعاد ترتيبها بلا عزل صريح. */
+.tnum { font-variant-numeric: tabular-nums; font-feature-settings: "tnum"; }
+.ltr  { direction: ltr; unicode-bidi: isolate; }
+.num  { font-variant-numeric: tabular-nums; font-feature-settings: "tnum"; }
+.code {
+  direction: ltr;
+  unicode-bidi: isolate;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.01em;
+}
+
+::selection { background: var(--accent-line); color: var(--ink); }
+
+:focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* شريط تمرير رفيع */
+@media (pointer: fine) {
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb {
+    background: var(--line-strong);
+    border-radius: 999px;
+    border: 3px solid var(--bg);
+  }
+  ::-webkit-scrollbar-thumb:hover { background: var(--ink-3); }
+}
+
+/* ============================================================
+   الزخرفة التراثية — إشارة لا استعراض
+   شبكة هندسية مشتقة من تكرار زهرة اللوتس في الأفاريز المصرية
+   ============================================================ */
+.heritage-grid {
+  background-image:
+    linear-gradient(to left, color-mix(in srgb, var(--accent) 12%, transparent) 1px, transparent 1px),
+    linear-gradient(to bottom, color-mix(in srgb, var(--accent) 12%, transparent) 1px, transparent 1px);
+  background-size: 34px 34px;
+  background-position: center;
+  -webkit-mask-image: radial-gradient(ellipse 80% 70% at 50% 0%, #000 10%, transparent 75%);
+  mask-image: radial-gradient(ellipse 80% 70% at 50% 0%, #000 10%, transparent 75%);
+}
+
+/* خيط ذهبي أسفل العناوين الرسمية */
+.gold-rule {
+  position: relative;
+  padding-block-end: 10px;
+}
+.gold-rule::after {
+  content: "";
+  position: absolute;
+  inset-block-end: 0;
+  inset-inline-start: 0;
+  width: 46px;
+  height: 2px;
+  border-radius: 2px;
+  background: linear-gradient(to left, var(--accent), color-mix(in srgb, var(--accent) 20%, transparent));
+}
+
+/* إفريز حدودي دقيق — يُستخدم في الترويسة فقط */
+.frieze {
+  height: 3px;
+  background-image: repeating-linear-gradient(
+    to left,
+    var(--accent) 0 6px,
+    transparent 6px 10px,
+    color-mix(in srgb, var(--brand) 60%, transparent) 10px 13px,
+    transparent 13px 19px
+  );
+  opacity: 0.5;
+}
+
+/* ============================================================
+   المكوّنات الأساسية
+   ============================================================ */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-1);
+}
+
+.card-hover {
+  transition: transform 0.2s var(--ease-out-soft), box-shadow 0.2s var(--ease-out-soft),
+              border-color 0.2s var(--ease-out-soft);
+}
+.card-hover:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-2);
+  border-color: var(--line-strong);
+}
+
+.glass {
+  background: color-mix(in srgb, var(--surface) 78%, transparent);
+  backdrop-filter: saturate(1.6) blur(14px);
+  -webkit-backdrop-filter: saturate(1.6) blur(14px);
+}
+
+.hairline-t { border-block-start: 1px solid var(--line); }
+.hairline-b { border-block-end: 1px solid var(--line); }
+
+/* سطح مائي — هوية البحيرة الجغرافية.
+   يأتي **بعد** `.card` عمدًا: البطاقة تضبط `background` كاختصار، فلو عُرّف
+   هذا السطح قبلها لأعادت البطاقة الخلفية إلى الأبيض وصار النص الفاتح
+   على أرضية فاتحة. الترتيب هنا جزء من الصحة لا من التنظيم. */
+.water-surface {
+  background:
+    radial-gradient(1200px 400px at 88% -30%, color-mix(in srgb, var(--teal) 28%, transparent), transparent 62%),
+    radial-gradient(900px 380px at 6% 110%, color-mix(in srgb, var(--accent) 20%, transparent), transparent 60%),
+    linear-gradient(160deg, var(--color-nile-900), var(--color-nile-800) 55%, var(--color-nile-950));
+}
+
+
+/* ============================================================
+   الحركة — تشرح الحالة والعلاقة
+   ============================================================ */
+@keyframes rise {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: none; }
+}
+@keyframes fade {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes slide-start {
+  from { opacity: 0; transform: translateX(14px); }
+  to   { opacity: 1; transform: none; }
+}
+@keyframes pop {
+  0%   { opacity: 0; transform: scale(0.94); }
+  60%  { transform: scale(1.015); }
+  100% { opacity: 1; transform: scale(1); }
+}
+@keyframes shimmer {
+  100% { transform: translateX(-100%); }
+}
+@keyframes pulse-ring {
+  0%   { box-shadow: 0 0 0 0 color-mix(in srgb, var(--teal) 45%, transparent); }
+  70%  { box-shadow: 0 0 0 10px transparent; }
+  100% { box-shadow: 0 0 0 0 transparent; }
+}
+@keyframes draw {
+  to { stroke-dashoffset: 0; }
+}
+
+.anim-rise  { animation: rise 0.34s var(--ease-out-soft) both; }
+.anim-fade  { animation: fade 0.3s var(--ease-out-soft) both; }
+.anim-slide { animation: slide-start 0.3s var(--ease-out-soft) both; }
+.anim-pop   { animation: pop 0.26s var(--ease-out-soft) both; }
+.anim-ring  { animation: pulse-ring 2s ease-out infinite; }
+
+.stagger > *  { animation: rise 0.36s var(--ease-out-soft) both; }
+.stagger > *:nth-child(1) { animation-delay: 0.02s; }
+.stagger > *:nth-child(2) { animation-delay: 0.06s; }
+.stagger > *:nth-child(3) { animation-delay: 0.10s; }
+.stagger > *:nth-child(4) { animation-delay: 0.14s; }
+.stagger > *:nth-child(5) { animation-delay: 0.18s; }
+.stagger > *:nth-child(6) { animation-delay: 0.22s; }
+.stagger > *:nth-child(7) { animation-delay: 0.26s; }
+.stagger > *:nth-child(8) { animation-delay: 0.30s; }
+
+/* هيكل التحميل */
+.skeleton {
+  position: relative;
+  overflow: hidden;
+  background: var(--surface-sunk);
+  border-radius: 8px;
+}
+.skeleton::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(100%);
+  background: linear-gradient(
+    to left,
+    transparent,
+    color-mix(in srgb, var(--surface) 85%, transparent),
+    transparent
+  );
+  animation: shimmer 1.5s infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ============================================================
+   RTL — قلب الأيقونات الاتجاهية فقط
+   ============================================================ */
+[dir="rtl"] .flip-x { transform: scaleX(-1); }
+
+/* إخفاء شريط تمرير الأشرطة الأفقية */
+.no-scrollbar { scrollbar-width: none; -ms-overflow-style: none; }
+.no-scrollbar::-webkit-scrollbar { display: none; }
+
+/* منطقة آمنة للموبايل */
+.safe-b { padding-block-end: env(safe-area-inset-bottom, 0px); }
+.safe-t { padding-block-start: env(safe-area-inset-top, 0px); }
+
+/* توازن النصوص الطويلة */
+.balance { text-wrap: balance; }
+.pretty  { text-wrap: pretty; }
+
+/* ============================================================
+   رموز الرسوم البيانية
+   تدرّج أحادي اللون مُتحقَّق منه آليًا في النمطين
+   ============================================================ */
+.viz-root {
+  --viz-ramp-0: #7BA0BF;
+  --viz-ramp-1: #3C6E99;
+  --viz-ramp-2: #1F5480;
+  --viz-ramp-3: #123A5E;
+}
+:root[data-theme="dark"] .viz-root {
+  --viz-ramp-0: #C2E7E5;
+  --viz-ramp-1: #8CD1CE;
+  --viz-ramp-2: #4FB4B1;
+  --viz-ramp-3: #1E958F;
+}

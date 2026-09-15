@@ -1,0 +1,23 @@
+{
+  "name": "بحيرة سمارت — البوابة الرقمية لمحافظة البحيرة",
+  "short_name": "بحيرة سمارت",
+  "description": "الخدمات الحكومية والبلاغات الذكية والأخبار الرسمية والبرامج التدريبية في مكان واحد.",
+  "lang": "ar",
+  "dir": "rtl",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#F6F5F1",
+  "theme_color": "#0C2942",
+  "categories": ["government", "education", "utilities"],
+  "icons": [
+    { "src": "/brand/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
+    { "src": "/brand/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "بلاغ جديد", "url": "/complaints/new" },
+    { "name": "المساعد الذكي", "url": "/assistant" },
+    { "name": "الخدمات", "url": "/services" }
+  ]
+}
