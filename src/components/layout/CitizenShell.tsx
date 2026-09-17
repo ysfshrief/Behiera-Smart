@@ -9,6 +9,7 @@ import { Icon } from "./Icon";
 import { ThemeToggle } from "./ThemeToggle";
 import { OfflineBanner, ConnectivityDot } from "./OfflineBanner";
 import { BrandLockup, OfficialEmblem } from "@/components/brand/Logo";
+import { JoeIndustriesMark } from "@/components/brand/JoeIndustries";
 import { Avatar } from "@/components/ui/primitives";
 import type { User } from "@/lib/types";
 import { fill, type Dictionary } from "@/lib/i18n/dictionary";
@@ -24,11 +25,14 @@ export function CitizenShell({
   user,
   unreadCount,
   t,
+  joeLogoSrc,
   children,
 }: {
   user: User;
   unreadCount: number;
   t: Dictionary;
+  /** مسار شعار الاستوديو إن وُجد في `public/` — يُفحص على الخادم. */
+  joeLogoSrc?: string | null;
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
@@ -128,13 +132,15 @@ export function CitizenShell({
 
         <OfflineBanner />
 
-        <main id="main" className="pb-[calc(var(--tabbar-h)+28px)] lg:pb-16">
+        <main id="main" className="lg:pb-4">
           {children}
         </main>
 
-        <footer className="hidden border-t border-[var(--line)] lg:block">
+        <footer className="border-t border-[var(--line)]">
           <div className="frieze opacity-35" />
-          <div className="mx-auto flex max-w-[1180px] items-center justify-between gap-6 px-8 py-7">
+
+          {/* الصف الأول — الهوية والإفصاح والروابط (ديسكتوب) */}
+          <div className="mx-auto hidden max-w-[1180px] items-center justify-between gap-6 px-8 py-7 lg:flex">
             <div className="flex items-center gap-3.5">
               <OfficialEmblem size={44} />
               <div>
@@ -151,6 +157,41 @@ export function CitizenShell({
             <div className="flex shrink-0 gap-4 text-[12px] font-semibold">
               <Link href="/about" className="text-[var(--brand)] hover:underline">{t.shell.about}</Link>
               <Link href="/demo" className="text-[var(--brand)] hover:underline">{t.nav.demo}</Link>
+            </div>
+          </div>
+
+          {/* الصف الأول — نسخة الموبايل */}
+          <div className="px-5 pt-6 lg:hidden">
+            <div className="flex items-center gap-3">
+              <OfficialEmblem size={38} />
+              <div className="min-w-0">
+                <p className="text-[12.5px] font-extrabold">{t.shell.governorate}</p>
+                <p className="mt-0.5 text-[11px] text-[var(--ink-3)]">
+                  بحيرة سمارت — بوابة رقمية واحدة
+                </p>
+              </div>
+            </div>
+            <div className="mt-4 flex gap-4 text-[12px] font-semibold">
+              <Link href="/about" className="text-[var(--brand)] hover:underline">{t.shell.about}</Link>
+              <Link href="/demo" className="text-[var(--brand)] hover:underline">{t.nav.demo}</Link>
+            </div>
+          </div>
+
+          {/* الصف الثاني — حقوق النشر ونسبة التصميم والتطوير.
+              على الموبايل نترك مساحة سفلية تتجاوز الشريط السفلي والزر العائم،
+              وإلا اختفى السطر تحتهما. */}
+          <div className="border-t border-[var(--line)] pb-[calc(var(--tabbar-h)+84px+env(safe-area-inset-bottom,0px))] lg:pb-0">
+            <div className="mx-auto flex max-w-[1180px] flex-col items-center gap-4 px-5 py-6 text-center sm:px-8 lg:flex-row lg:justify-between lg:gap-6 lg:text-start">
+              <div>
+                <p className="text-[12px] leading-relaxed text-[var(--ink-2)]">
+                  <span className="ltr">© 2026 Beheira Smart</span> — مشروع لخدمة محافظة البحيرة.
+                </p>
+                <p className="ltr mt-1.5 text-[11.5px] font-semibold text-[var(--ink-3)]">
+                  Developed &amp; designed by: Youssef Shrief
+                </p>
+              </div>
+
+              <JoeIndustriesMark src={joeLogoSrc} height={24} className="shrink-0" />
             </div>
           </div>
         </footer>
